@@ -1,353 +1,267 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NurtureEd • Scenario Flow</title>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NurtureEd • Scenario – Menstrual Awareness</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;font-family:'DM Sans',sans-serif;}
+body{background:linear-gradient(135deg,#eafaf1,#e3f2fd);min-height:100vh;display:flex;flex-direction:column;color:#2c3e50;}
+.blob{position:fixed;border-radius:50%;filter:blur(40px);opacity:0.4;z-index:0;}
+.blob1{width:260px;height:260px;background:#a8edea;top:15%;left:20%;}
+.blob2{width:300px;height:300px;background:#cfd9ff;bottom:10%;right:15%;}
+.container{display:flex;justify-content:center;padding:40px 20px;position:relative;z-index:2;}
+.card{width:100%;max-width:860px;background:rgba(255,255,255,0.88);backdrop-filter:blur(14px);padding:36px;border-radius:24px;box-shadow:0 20px 50px rgba(0,0,0,0.08);}
+.screen{display:none;}
+.screen.active{display:block;animation:fade 0.5s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+img{width:100%;height:320px;object-fit:cover;border-radius:16px;margin-bottom:22px;}
+h2{font-family:'DM Serif Display',serif;font-size:1.6rem;margin-bottom:10px;}
+.desc{color:#6b7c93;margin-bottom:22px;line-height:1.7;font-size:0.95rem;}
+.main-btn{width:100%;padding:14px;background:#2c7a7b;color:white;border:none;border-radius:12px;cursor:pointer;font-size:1rem;font-weight:600;transition:0.2s;}
+.main-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(44,122,123,0.25);}
+.main-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.back{margin-bottom:18px;cursor:pointer;color:#2c7a7b;font-weight:600;font-size:0.9rem;}
 
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      }
+/* VOTING */
+.option-block{margin-bottom:14px;background:#f4f8fb;padding:16px;border-radius:14px;transition:0.2s;}
+.option-block.voted-this{border:2px solid #2c7a7b;}
+.option-row{display:flex;justify-content:space-between;align-items:center;}
+.option-text{font-weight:500;font-size:0.95rem;}
+.vote-info{font-size:0.82rem;color:#6b7c93;min-width:60px;text-align:right;}
+.bar{height:8px;background:#e0eaef;margin-top:10px;border-radius:10px;overflow:hidden;}
+.fill{height:100%;width:0%;background:#2c7a7b;border-radius:10px;transition:width 0.5s ease;}
+.vote-btn{margin-top:10px;padding:7px 14px;background:#e8f7f6;color:#2c7a7b;border:none;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600;transition:0.2s;}
+.vote-btn:hover{background:#a8edea;}
+.vote-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.voted-notice{margin-top:10px;font-size:0.78rem;color:#2c7a7b;font-weight:600;}
 
-      body {
-        background: linear-gradient(135deg, #eafaf1, #e3f2fd);
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        color: #2c3e50;
-      }
+/* REVIEW */
+.insight{background:#f4f8fb;padding:18px;border-radius:14px;margin-bottom:14px;border-left:5px solid #ccc;}
+.insight.correct{border-color:#2c7a7b;}
+.insight.wrong{border-color:#e53e3e;}
+.insight b{display:block;margin-bottom:6px;}
+.insight p{font-size:0.88rem;color:#5a7080;line-height:1.6;}
+.llm-review{background:#f0fdfc;border:1.5px solid #a8edea;border-radius:16px;padding:20px;margin-bottom:18px;}
+.llm-review h4{color:#2c7a7b;margin-bottom:10px;font-size:0.95rem;}
+.llm-review p{font-size:0.88rem;color:#2c3e50;line-height:1.7;}
+.llm-review .loading{color:#8fa3b0;font-style:italic;}
+.dashboard-btn{margin-top:20px;text-align:center;padding:13px;border-radius:12px;background:#edf2f7;cursor:pointer;font-weight:600;transition:0.2s;}
+.dashboard-btn:hover{background:#d0e8e8;}
+.stats-bar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+.stat-chip{background:#e8f7f6;color:#05595b;padding:6px 14px;border-radius:999px;font-size:0.78rem;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="container">
+<div class="card">
 
-      .container {
-        display: flex;
-        justify-content: center;
-        padding: 40px 20px;
-      }
+  <!-- SCREEN 1: Intro -->
+  <div class="screen active" id="screen1">
+    <img src="./menstural_awareness.png" alt="Menstrual Awareness scenario"/>
+    <h2>Respect, Empathy & Menstrual Awareness in School</h2>
+    <p class="desc">During a regular school day, a group of boys overhear that a girl in their class has started her first period. Instead of being supportive, they begin whispering, laughing, and making insensitive jokes. The girl feels embarrassed, anxious, and avoids participating in class activities.<br><br>The teacher is not present at that moment, and the classroom environment becomes uncomfortable. This situation reflects a lack of awareness and respect for natural biological processes.</p>
+    <button class="main-btn" onclick="next(2)">Start Class Discussion →</button>
+  </div>
 
-      /* WIDER CARD */
-      .card {
-        width: 100%;
-        max-width: 1000px;
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(14px);
-        padding: 32px;
-        border-radius: 24px;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
-      }
+  <!-- SCREEN 2: Voting -->
+  <div class="screen" id="screen2">
+    <div class="back" onclick="next(1)">← Back</div>
+    <h2>If you were in this situation, what would you do?</h2>
+    <p class="desc" style="margin-bottom:18px;">Each student votes once. The teacher can see live results.</p>
 
-      /* SCREENS */
-      .screen {
-        display: none;
-      }
-      .screen.active {
-        display: block;
-        animation: fade 0.5s ease;
-      }
-
-      @keyframes fade {
-        from {
-          opacity: 0;
-          transform: translateY(15px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      /* BIGGER IMAGE */
-      img {
-        width: 100%;
-        height: 340px;
-        object-fit: cover;
-        border-radius: 16px;
-        margin-bottom: 20px;
-      }
-
-      h2 {
-        margin-bottom: 10px;
-      }
-
-      .desc {
-        color: #6b7c93;
-        margin-bottom: 20px;
-        line-height: 1.6;
-      }
-
-      /* BUTTONS */
-      .main-btn {
-        width: 100%;
-        padding: 14px;
-        background: #2c7a7b;
-        color: white;
-        border: none;
-        border-radius: 12px;
-        cursor: pointer;
-      }
-
-      /* BACK BUTTON */
-      .back {
-        margin-bottom: 20px;
-        cursor: pointer;
-        color: #2c7a7b;
-        font-weight: 500;
-      }
-
-      /* OPTION BLOCK */
-      .option-block {
-        margin-bottom: 16px;
-        background: rgba(255, 255, 255, 0.95);
-        padding: 16px;
-        border-radius: 14px;
-      }
-
-      /* FLEX FIX */
-      .option-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .option-text {
-        font-weight: 500;
-      }
-
-      /* RIGHT-ALIGNED COUNTER */
-      .counter {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .counter button {
-        width: 32px;
-        height: 32px;
-        border: none;
-        border-radius: 8px;
-        background: #e6fffa;
-        cursor: pointer;
-      }
-
-      .bar {
-        height: 8px;
-        background: #eee;
-        margin-top: 10px;
-        border-radius: 10px;
-      }
-
-      .fill {
-        height: 100%;
-        width: 0%;
-        background: #2c7a7b;
-        border-radius: 10px;
-      }
-
-      /* REVIEW */
-      .insight {
-        background: #f0fdfc;
-        padding: 16px;
-        border-radius: 14px;
-        margin-bottom: 14px;
-      }
-
-      .correct {
-        border-left: 5px solid #2c7a7b;
-      }
-      .wrong {
-        border-left: 5px solid #e53e3e;
-      }
-
-      /* DASHBOARD BTN */
-      .dashboard-btn {
-        margin-top: 20px;
-        text-align: center;
-        padding: 12px;
-        border-radius: 12px;
-        background: #edf2f7;
-        cursor: pointer;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="container">
-      <div class="card">
-        <!-- SCREEN 1 -->
-        <div class="screen active" id="screen1">
-          <img
-            src="./menstrual_awareness.png"
-          />
-
-          <h2>Respect, Empathy, and Menstrual Awareness in School</h2>
-          <p class="desc">
-            During a regular school day, a group of boys overhear that a girl in
-            their class has started her first period. Instead of being
-            supportive, they begin whispering, laughing, and making insensitive
-            jokes. The girl feels embarrassed, anxious, and avoids participating
-            in class activities. Some classmates notice what’s happening but
-            feel unsure whether to step in or stay silent. <br><br>
-            
-            The teacher is not present at that moment, and the classroom environment becomes
-            uncomfortable. This situation reflects a lack of awareness and
-            respect for natural biological processes, affecting not only the
-            girl’s confidence but also the overall class atmosphere. 
-          </p>
-
-          <button class="main-btn" onclick="next(2)">Start Discussion</button>
+    <div id="voteArea">
+      <div class="option-block" id="block0">
+        <div class="option-row">
+          <div class="option-text">A. Ignore the situation and stay silent</div>
+          <div class="vote-info"><span id="c0">0</span> votes</div>
         </div>
-
-        <!-- SCREEN 2 -->
-        <div class="screen" id="screen2">
-          <div class="back" onclick="next(1)">← Back</div>
-
-          <h2>If you were in this situation, what would you do?</h2>
-
-          <!-- OPTION -->
-          <div class="option-block">
-            <div class="option-row">
-              <div class="option-text">
-                A. Ignore the situation and stay silent
-              </div>
-              <div class="counter">
-                <button onclick="change(0, -1)">−</button>
-                <span id="c0">0</span>
-                <button onclick="change(0, 1)">+</button>
-              </div>
-            </div>
-            <div class="bar"><div class="fill" id="f0"></div></div>
-          </div>
-
-          <div class="option-block">
-            <div class="option-row">
-              <div class="option-text">
-                B. Join the boys to avoid feeling left out
-              </div>
-              <div class="counter">
-                <button onclick="change(1, -1)">−</button>
-                <span id="c1">0</span>
-                <button onclick="change(1, 1)">+</button>
-              </div>
-            </div>
-            <div class="bar"><div class="fill" id="f1"></div></div>
-          </div>
-
-          <div class="option-block">
-            <div class="option-row">
-              <div class="option-text">
-                C. Support the girl and stop the boys politely
-              </div>
-              <div class="counter">
-                <button onclick="change(2, -1)">−</button>
-                <span id="c2">0</span>
-                <button onclick="change(2, 1)">+</button>
-              </div>
-            </div>
-            <div class="bar"><div class="fill" id="f2"></div></div>
-          </div>
-
-          <div class="option-block">
-            <div class="option-row">
-              <div class="option-text">
-                D.Record and share the incident with others
-              </div>
-              <div class="counter">
-                <button onclick="change(3, -1)">−</button>
-                <span id="c3">0</span>
-                <button onclick="change(3, 1)">+</button>
-              </div>
-            </div>
-            <div class="bar"><div class="fill" id="f3"></div></div>
-          </div>
-
-          <button class="main-btn" onclick="next(3)">Submit & Review</button>
+        <div class="bar"><div class="fill" id="f0"></div></div>
+        <button class="vote-btn" id="vb0" onclick="castVote(0)">Vote for A</button>
+      </div>
+      <div class="option-block" id="block1">
+        <div class="option-row">
+          <div class="option-text">B. Join the boys to avoid feeling left out</div>
+          <div class="vote-info"><span id="c1">0</span> votes</div>
         </div>
-
-        <!-- SCREEN 3 -->
-        <div class="screen" id="screen3">
-          <h2>Review & Insights</h2>
-
-          <div class="insight correct">
-            <b>C. Support the girl and stop the boys politely</b>
-            <p>
-              Supporting the girl and calmly stopping the boys is the most
-              responsible choice. It shows empathy, awareness, and courage. This
-              action helps create a safe and respectful environment, encourages
-              others to behave better, and ensures that no one feels ashamed of
-              a natural biological process.
-            </p>
-          </div>
-
-          <div class="insight wrong">
-            <b>A.Ignore the situation and stay silent</b>
-            <p>
-              Ignoring the situation may feel safe, but it allows disrespectful
-              behavior to continue. Silence can indirectly support bullying and
-              make the affected student feel isolated. Taking no action means
-              missing the chance to stand up for what is right and create a
-              respectful classroom environment.
-            </p>
-          </div>
-
-          <div class="insight wrong">
-            <b>B. Join the boys to avoid feeling left out</b>
-            <p>
-              Joining the boys might help you fit in temporarily, but it
-              contributes to emotional harm. Making fun of someone for a natural
-              process like menstruation shows a lack of maturity and awareness.
-              It can damage the girl’s confidence and normalize insensitive
-              behavior among classmates.
-            </p>
-          </div>
-
-          <div class="insight wrong">
-            <b>D. Record and share the incident with others</b>
-            <p>
-              Recording and sharing the incident violates the girl’s privacy and
-              increases her embarrassment. Instead of helping, it spreads the
-              situation further and may lead to cyberbullying. Responsible
-              behavior means protecting someone’s dignity, not exposing them
-              during a vulnerable moment.
-            </p>
-          </div>
-
-          <div class="dashboard-btn" onclick="goDashboard()">
-            ← Back to Dashboard
-          </div>
+        <div class="bar"><div class="fill" id="f1"></div></div>
+        <button class="vote-btn" id="vb1" onclick="castVote(1)">Vote for B</button>
+      </div>
+      <div class="option-block" id="block2">
+        <div class="option-row">
+          <div class="option-text">C. Support the girl and stop the boys politely</div>
+          <div class="vote-info"><span id="c2">0</span> votes</div>
         </div>
+        <div class="bar"><div class="fill" id="f2"></div></div>
+        <button class="vote-btn" id="vb2" onclick="castVote(2)">Vote for C</button>
+      </div>
+      <div class="option-block" id="block3">
+        <div class="option-row">
+          <div class="option-text">D. Record and share the incident with others</div>
+          <div class="vote-info"><span id="c3">0</span> votes</div>
+        </div>
+        <div class="bar"><div class="fill" id="f3"></div></div>
+        <button class="vote-btn" id="vb3" onclick="castVote(3)">Vote for D</button>
       </div>
     </div>
 
-    <script>
-      let data = [0, 0, 0, 0];
+    <div id="votedMsg" style="display:none;text-align:center;padding:12px;background:#e8f7f6;border-radius:12px;color:#2c7a7b;font-weight:600;margin-top:4px;">
+      ✓ Your vote has been recorded. Waiting for teacher to end voting…
+    </div>
 
-      function next(n) {
-        document
-          .querySelectorAll(".screen")
-          .forEach((s) => s.classList.remove("active"));
-        document.getElementById("screen" + n).classList.add("active");
-      }
+    <button class="main-btn" id="reviewBtn" onclick="next(3)" style="margin-top:18px;" disabled>
+      End Voting &amp; Review →
+    </button>
+    <p style="font-size:0.75rem;color:#8fa3b0;text-align:center;margin-top:8px;">Only the teacher can end voting</p>
+  </div>
 
-      function change(i, val) {
-        data[i] = Math.max(0, data[i] + val);
-        document.getElementById("c" + i).innerText = data[i];
-        update();
-      }
+  <!-- SCREEN 3: Review -->
+  <div class="screen" id="screen3">
+    <h2>Review &amp; Insights</h2>
 
-      function update() {
-        let total = data.reduce((a, b) => a + b, 0);
-        data.forEach((v, i) => {
-          let p = total ? (v / total) * 100 : 0;
-          document.getElementById("f" + i).style.width = p + "%";
-        });
-      }
+    <div class="stats-bar" id="resultStats"></div>
 
-      /* DASHBOARD NAV */
-      function goDashboard() {
-        window.location.href = "teacher.html";
-      }
-    </script>
-  </body>
+    <!-- LLM-powered review -->
+    <div class="llm-review">
+      <h4>🤖 AI Class Analysis</h4>
+      <p id="llmText" class="loading">Analysing class responses…</p>
+    </div>
+
+    <div class="insight correct">
+      <b>✅ C. Support the girl and stop the boys politely</b>
+      <p>Supporting the girl and calmly stopping the boys is the most responsible choice. It shows empathy, awareness, and courage — creating a safe and respectful environment.</p>
+    </div>
+    <div class="insight wrong">
+      <b>❌ A. Ignore the situation and stay silent</b>
+      <p>Silence allows disrespectful behaviour to continue and can indirectly support bullying, making the affected student feel isolated.</p>
+    </div>
+    <div class="insight wrong">
+      <b>❌ B. Join the boys to avoid feeling left out</b>
+      <p>Joining in damages the girl's confidence and normalises insensitive behaviour among classmates.</p>
+    </div>
+    <div class="insight wrong">
+      <b>❌ D. Record and share the incident</b>
+      <p>Recording violates the girl's privacy and can escalate to cyberbullying. Responsible behaviour means protecting dignity, not exposing vulnerability.</p>
+    </div>
+
+    <div class="dashboard-btn" onclick="window.location.href='scenario-dashboard-body.html'">← Back to Body Awareness</div>
+  </div>
+
+</div>
+</div>
+
+<script>
+const OPTION_LABELS = ["A","B","C","D"];
+let votes = [0,0,0,0];
+let hasVoted = false;
+
+// Determine role from sessionStorage (set by auth-state or login flow)
+const role = sessionStorage.getItem("userRole") || "student";
+const isTeacher = role === "teacher";
+
+// Only teacher sees the "End Voting" button
+if (isTeacher) {
+  document.getElementById("reviewBtn").disabled = false;
+  document.getElementById("reviewBtn").style.opacity = "1";
+  const hint = document.querySelector('#screen2 p[style]');
+  if(hint) hint.textContent = "You can end voting anytime and proceed to review.";
+}
+
+function next(n) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen" + n).classList.add("active");
+  if (n === 3) generateLLMReview();
+}
+
+function castVote(i) {
+  if (hasVoted) return;
+  if (isTeacher) { alert("Teachers cannot vote — only students can."); return; }
+
+  votes[i]++;
+  hasVoted = true;
+
+  // Disable all vote buttons
+  [0,1,2,3].forEach(j => {
+    document.getElementById("vb"+j).disabled = true;
+  });
+  document.getElementById("block"+i).classList.add("voted-this");
+  document.getElementById("votedMsg").style.display = "block";
+
+  updateBars();
+}
+
+function updateBars() {
+  const total = votes.reduce((a,b)=>a+b,0);
+  votes.forEach((v,i) => {
+    document.getElementById("c"+i).textContent = v;
+    document.getElementById("f"+i).style.width = total ? (v/total*100)+"%" : "0%";
+  });
+}
+
+async function generateLLMReview() {
+  // Build stats string
+  const total = votes.reduce((a,b)=>a+b,0);
+  const statsEl = document.getElementById("resultStats");
+  statsEl.innerHTML = "";
+  const labels = ["A – Silent","B – Joined","C – Supported","D – Recorded"];
+  votes.forEach((v,i) => {
+    const pct = total ? Math.round(v/total*100) : 0;
+    statsEl.innerHTML += `<div class="stat-chip">${labels[i]}: ${v} (${pct}%)</div>`;
+  });
+
+  const prompt = `You are a compassionate school educator reviewing anonymous class voting results for a scenario about menstrual awareness and empathy. 
+
+Scenario: Boys mocked a girl for her first period. Students voted on what they would do:
+- A (Ignore/Stay silent): ${votes[0]} votes
+- B (Join the boys): ${votes[1]} votes  
+- C (Support the girl, stop the boys): ${votes[2]} votes
+- D (Record and share): ${votes[3]} votes
+Total votes: ${total}
+
+Write a short, warm, encouraging review (3-4 sentences) for the teacher to read aloud to the class. Acknowledge the voting pattern honestly, celebrate empathy if C got votes, and gently correct harmful choices. Keep it age-appropriate for Grade 8 students. Do not use bullet points.`;
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.find(b => b.type === "text")?.text || "Unable to generate review.";
+    document.getElementById("llmText").textContent = text;
+    document.getElementById("llmText").classList.remove("loading");
+  } catch(err) {
+    document.getElementById("llmText").textContent = "Could not load AI analysis. Please review results manually.";
+    document.getElementById("llmText").classList.remove("loading");
+  }
+}
+</script>
+<script type="module">
+// Store role in sessionStorage so scenario knows who is viewing
+import { auth, db } from "./firebase-config.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = "login.html"; return; }
+  const snap = await getDoc(doc(db, "users", user.uid));
+  if (snap.exists()) {
+    const role = snap.data().role.replace(/['"]/g,'').toLowerCase();
+    sessionStorage.setItem("userRole", role);
+    // Re-evaluate teacher controls
+    if (role === "teacher") {
+      document.getElementById("reviewBtn").disabled = false;
+      const hint = document.querySelector('#screen2 > p');
+      if(hint) hint.textContent = "You can end voting anytime and proceed to review.";
+    }
+  }
+});
+</script>
+</body>
 </html>
